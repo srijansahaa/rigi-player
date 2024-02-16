@@ -1,112 +1,379 @@
+"use client";
+
+import {
+  CaretDown,
+  CaretUp,
+  CaretUpDown,
+  ClockClockwise,
+  ClockCounterClockwise,
+  FrameCorners,
+  List,
+  Pause,
+  Play,
+} from "@phosphor-icons/react";
+import axios from "axios";
 import Image from "next/image";
+import { useEffect, useState, useRef } from "react";
+
+const API_KEY = "tcXk9eyhADKf5DzWUhQnutDiO1YqwLCbJXTrzGadQ80UWa9Doa0Q0dXZ";
 
 export default function Home() {
+  const [playlist, setPlaylist] = useState([]);
+  const [activeVideo, setActiveVideo] = useState(null);
+  const [searchValue, setSearchValue] = useState("");
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [progressDrag, setProgressDrag] = useState(false);
+  const [showPlayback, setShowPlayback] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.pexels.com/videos/popular?per_page=10&min_duration=30",
+          {
+            headers: {
+              Authorization: API_KEY,
+            },
+          }
+        );
+
+        const videos = response.data.videos.map((video) => ({
+          id: video.id,
+          title: video.user.name,
+          thumbnail: video.image,
+          video: {
+            url: video.video_files[0].link,
+            file_type: video.video_files[0].file_type,
+          },
+        }));
+        setPlaylist(videos);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleDragStart = (e, index) => {
+    e.dataTransfer.setData("text/plain", index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, targetIndex) => {
+    e.preventDefault();
+
+    const draggedIndex = e.dataTransfer.getData("text/plain");
+    const updatedPlaylist = [...playlist];
+    const [movedItem] = updatedPlaylist.splice(draggedIndex, 1);
+    updatedPlaylist.splice(targetIndex, 0, movedItem);
+
+    setPlaylist(updatedPlaylist);
+  };
+
+  const handleMove = (index, location) => {
+    console.log("cdscds");
+    const updatedPlaylist = [...playlist];
+    if (
+      (location === "up" && index === 0) ||
+      (location === "down" && index === playlist.length - 1)
+    ) {
+      return;
+    }
+    const targetIndex = location === "up" ? index - 1 : index + 1;
+    [updatedPlaylist[index], updatedPlaylist[targetIndex]] = [
+      updatedPlaylist[targetIndex],
+      updatedPlaylist[index],
+    ];
+
+    setPlaylist(updatedPlaylist);
+  };
+
+  const togglePlayPause = () => {
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  const toggleRewind = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime -= 10;
+    }
+  };
+
+  const toggleFastForward = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime += 10;
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    setCurrentTime(videoRef.current.currentTime);
+    if (videoRef.current.currentTime === videoRef.current.duration)
+      setIsPlaying(false);
+  };
+
+  const handleProgressBarClick = (e) => {
+    if (videoRef.current) {
+      const progressBar = e.target;
+      const clickedTime =
+        (e.nativeEvent.offsetX / progressBar.offsetWidth) *
+        videoRef.current.duration;
+      videoRef.current.currentTime = clickedTime;
+      setCurrentTime(clickedTime);
+    }
+  };
+
+  const progressDragMove = (e) => {
+    if (progressDrag && videoRef.current) {
+      const progressBar = e.target;
+      const draggedTime =
+        (e.nativeEvent.offsetX / progressBar.offsetWidth) *
+        videoRef.current.duration;
+      setCurrentTime(draggedTime);
+    }
+  };
+
+  const handlePlaybackSpeed = (newSpeed) => {
+    setPlaybackSpeed(newSpeed);
+    if (videoRef.current) {
+      videoRef.current.playbackRate = newSpeed;
+    }
+    setShowPlayback(false);
+  };
+
+  const speedConfigs = [0.5, 0.75, 1, 1.25, 1.75, 2];
+
+  const handleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      videoRef.current.requestFullscreen().catch((err) => {
+        console.error(err);
+      });
+    }
+  };
+
+  const handleSearch = async (e) => {
+    setSearchValue(e.target.value);
+    if (e.target.value.length > 2) {
+      try {
+        const response = await axios.get(
+          `https://api.pexels.com/videos/search?query=${e.target.value}&per_page=10&min_duration=30`,
+          {
+            headers: {
+              Authorization: API_KEY,
+            },
+          }
+        );
+
+        console.log(response);
+
+        const videos = response.data.videos.map((video) => ({
+          id: video.id,
+          title: video.user.name,
+          thumbnail: video.image,
+          video: {
+            url: video.video_files[0].link,
+            file_type: video.video_files[0].file_type,
+          },
+        }));
+        setPlaylist(videos);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+  console.log(playlist);
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="px-32">
+      <div>
+        <div>
+          <input
+            className="bg-white w-1/2 shadow-md p-4 rounded-md border outline-none mb-4"
+            value={searchValue}
+            placeholder="Search your own playlist"
+            onChange={handleSearch}
+          />
         </div>
-      </div>
+        <h1 className="text-violet-900 font-semibold text-xl mb-4">
+          Watch the most popular videos from Pexels
+        </h1>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        <div className="flex w-full gap-4">
+          <div className="flex flex-col gap-8 w-1/2">
+            {playlist.length === 0 ? (
+              <div className="text-center text-violet-900 font-semibold text-2xl my-auto">Try a different search!</div>
+            ) : (
+              playlist.map((vid, index) => (
+                <div
+                  key={vid.id}
+                  className="flex items-center justify-between shadow-md hover:shadown-lg p-4 rounded-md border active:shadow-lg"
+                >
+                  <div
+                    className="flex items-center gap-4 cursor-pointer"
+                    onClick={() => {
+                      if (activeVideo !== vid.video) {
+                        setActiveVideo(vid.video);
+                        setCurrentTime(0);
+                        setIsPlaying(true);
+                      }
+                    }}
+                  >
+                    <Image
+                      src={vid.thumbnail}
+                      width={40}
+                      height={40}
+                      alt={vid.title}
+                      className="rounded-full w-12 h-12"
+                    />
+                    {vid.title}
+                  </div>
 
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+                  <div className="flex items-center gap-2">
+                    {index !== 0 && (
+                      <button onClick={() => handleMove(index, "up")}>
+                        <CaretUp size={24} color="#8c8c8c" />
+                      </button>
+                    )}
+                    {index !== playlist.length - 1 && (
+                      <button onClick={() => handleMove(index, "down")}>
+                        <CaretDown size={24} color="#8c8c8c" />
+                      </button>
+                    )}
+                    <button
+                      className="cursor-grab"
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, index)}
+                    >
+                      <List size={28} color="#8c8c8c" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+          <div className="w-1/2 h-screen sticky customPlayer flex items-center">
+            {activeVideo ? (
+              <>
+                <div className="customVideoControls absolute z-30 flex gap-6">
+                  <button
+                    className="bg-white/50 rounded-full p-2"
+                    onClick={toggleRewind}
+                  >
+                    <ClockCounterClockwise
+                      size={32}
+                      color="#4c1d95"
+                      weight="fill"
+                    />
+                  </button>
+                  <button
+                    className="bg-white/50 rounded-full p-2"
+                    onClick={togglePlayPause}
+                  >
+                    {isPlaying ? (
+                      <Pause size={40} color="#4c1d95" weight="fill" />
+                    ) : (
+                      <Play size={40} color="#4c1d95" weight="fill" />
+                    )}
+                  </button>
+                  <button
+                    className="bg-white/50 rounded-full p-2"
+                    onClick={toggleFastForward}
+                  >
+                    <ClockClockwise size={32} color="#4c1d95" weight="fill" />
+                  </button>
+                </div>
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
+                <video
+                  key={activeVideo.url}
+                  controls={false}
+                  playsInline
+                  className="h-full w-full bg-black rounded-md relative"
+                  ref={videoRef}
+                  onTimeUpdate={handleTimeUpdate}
+                  autoPlay
+                >
+                  <source src={activeVideo.url} type={activeVideo.file_type} />
+                </video>
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+                <div
+                  className="absolute flex items-start z-30 w-full h-2 bg-white/50 bottom-8 cursor-pointer"
+                  onClick={handleProgressBarClick}
+                  onMouseDown={() => setProgressDrag(true)}
+                  onMouseMove={progressDragMove}
+                  onMouseUp={() => setProgressDrag(true)}
+                >
+                  <span className="text-slate-300 flex text-sm absolute left-2 bottom-3">
+                    <b className="text-white">
+                      {Math.round(currentTime) || "00"}:00 /&nbsp;
+                    </b>
+                    {Math.round(videoRef.current?.duration) || "00"}:00
+                  </span>
+
+                  <div
+                    className="h-full bg-violet-900 progressBarInner"
+                    style={{
+                      width: `${
+                        (currentTime / videoRef.current?.duration) * 100 || 0
+                      }%`,
+                    }}
+                  ></div>
+                </div>
+
+                <div className="customDropdown text-white bg-black/50 rounded-md absolute bottom-12 z-30 right-2 text-sm p-2 pb-0">
+                  <label
+                    className="flex gap-4 font-bold cursor-pointer"
+                    onClick={() => setShowPlayback(!showPlayback)}
+                  >
+                    Playback Speed <CaretUpDown size={20} color="#ffffff" />
+                  </label>
+                  {showPlayback && (
+                    <ul className=" flex flex-col gap-4 border-t mt-2 py-2">
+                      {speedConfigs.map((speed, index) => (
+                        <li
+                          onClick={() => handlePlaybackSpeed(parseFloat(speed))}
+                          key={index}
+                          className={`cursor-pointer ${
+                            playbackSpeed === speed ? "font-bold" : "font-light"
+                          }`}
+                        >
+                          {speed !== 1 ? `${speed}x` : "Normal"}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <button
+                  className="absolute bottom-1 z-30 right-4"
+                  onClick={handleFullscreen}
+                >
+                  <FrameCorners size={24} color="#ffffff" />
+                </button>
+              </>
+            ) : (
+              <img
+                src="/assets/landing.svg"
+                className="w-11/12 mx-auto"
+                alt="Player Landing"
+              />
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

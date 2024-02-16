@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -17,13 +18,33 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: "Nunito Sans", sans-serif;
+}
+
+.customPlayer {
+  height: 80vh;
+  top: 144px;
+}
+
+.customVideoControls {
+  /* display: none; */
+  left: calc(50% - 92px);
+}
+
+.customPlayer:hover .customVideoControls {
+  /* display: block; */
+}
+
+.progresBar {
+  /* display: none; */
+}
+
+.progressBarInner {
+  transition: width 0.3s ease-in-out;
+}
+
+.customDropdowntext {
+  transition: height 1s ease-in-out;
 }
 
 @layer utilities {

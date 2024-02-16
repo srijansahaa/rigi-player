@@ -1,5 +1,7 @@
 "use client";
 
+import { useAppDispatch, useAppSelector } from "@/feature/hooks";
+import { updatePlaylist } from "@/feature/playlistReducer";
 import {
   CaretDown,
   CaretUp,
@@ -18,7 +20,6 @@ import { useEffect, useState, useRef } from "react";
 const API_KEY = "tcXk9eyhADKf5DzWUhQnutDiO1YqwLCbJXTrzGadQ80UWa9Doa0Q0dXZ";
 
 export default function Home() {
-  const [playlist, setPlaylist] = useState([]);
   const [activeVideo, setActiveVideo] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const videoRef = useRef(null);
@@ -27,6 +28,9 @@ export default function Home() {
   const [progressDrag, setProgressDrag] = useState(false);
   const [showPlayback, setShowPlayback] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+
+  const playlist = useAppSelector((state) => state.playlist.playlist);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +53,7 @@ export default function Home() {
             file_type: video.video_files[0].file_type,
           },
         }));
-        setPlaylist(videos);
+        dispatch(updatePlaylist(videos));
       } catch (err) {
         console.error(err);
       }
@@ -74,7 +78,7 @@ export default function Home() {
     const [movedItem] = updatedPlaylist.splice(draggedIndex, 1);
     updatedPlaylist.splice(targetIndex, 0, movedItem);
 
-    setPlaylist(updatedPlaylist);
+    dispatch(updatePlaylist(updatedPlaylist));
   };
 
   const handleMove = (index, location) => {
@@ -92,7 +96,7 @@ export default function Home() {
       updatedPlaylist[index],
     ];
 
-    setPlaylist(updatedPlaylist);
+    dispatch(updatePlaylist(updatedPlaylist));
   };
 
   const togglePlayPause = () => {
@@ -188,13 +192,13 @@ export default function Home() {
             file_type: video.video_files[0].file_type,
           },
         }));
-        setPlaylist(videos);
+        dispatch(updatePlaylist(videos));
       } catch (err) {
         console.error(err);
       }
     }
   };
-  console.log(playlist);
+
   return (
     <main className="px-32">
       <div>
@@ -206,14 +210,20 @@ export default function Home() {
             onChange={handleSearch}
           />
         </div>
-        <h1 className="text-violet-900 font-semibold text-xl mb-4">
-          Watch the most popular videos from Pexels
+        <h1 className="text-violet-900 font-semibold text-xl mb-4 w-1/2 flex whitespace-nowrap items-center gap-4">
+          {searchValue.length < 4
+            ? "Watch the most popular videos from Pexels"
+            : `Search results for ${searchValue}`}
+
+          <div className="border-b-2 border-violet-900 w-full" />
         </h1>
 
         <div className="flex w-full gap-4">
           <div className="flex flex-col gap-8 w-1/2">
             {playlist.length === 0 ? (
-              <div className="text-center text-violet-900 font-semibold text-2xl my-auto">Try a different search!</div>
+              <div className="text-center text-violet-900 font-semibold text-2xl my-auto">
+                Try a different search!
+              </div>
             ) : (
               playlist.map((vid, index) => (
                 <div

@@ -206,15 +206,16 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setActiveVideo(JSON.parse(localStorage.getItem("activeVideo")) || null);
+  }, []);
+
+  useEffect(() => {
+    console.log(videoRef.current);
     if (videoRef.current) {
       setIsPlaying(!videoRef.current.paused);
       videoRef.current.currentTime = localStorage.getItem("videoTime");
     }
-  }, [videoRef]);
-
-  useEffect(() => {
-    setActiveVideo(JSON.parse(localStorage.getItem("activeVideo")) || null);
-  }), [];
+  }, [videoRef.current]);
 
   return (
     <main className="px-4 lg:px-32 pb-4">

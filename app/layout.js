@@ -1,7 +1,7 @@
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import Image from "next/image";
-import { CustomProvider } from "@/feature/customProvider";
+import { CustomProvider } from "@/app/customProvider";
 
 const openSans = Open_Sans({
   subsets: ["latin"],

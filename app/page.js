@@ -215,7 +215,7 @@ export default function Home() {
   return (
     <main className="px-4 lg:px-32 pb-4">
       <div>
-        <div className="flex justify-between mb-4">
+        <div className="flex justify-between mb-4 maxLg:text-sm maxLg:gap-2">
           <input
             className="bg-white w-full lg:w-1/2 shadow-md p-4 rounded-md border outline-none"
             value={searchValue}
@@ -223,7 +223,7 @@ export default function Home() {
             onChange={handleSearch}
           />
           <button
-            className="border border-violet-900 px-4 rounded-md text-black hover:bg-indigo-900 hover:text-white"
+            className="border border-violet-900 px-4 rounded-md text-black hover:bg-indigo-900 hover:text-white whitespace-nowrap"
             onClick={() => {
               setActiveVideo(null);
               localStorage.removeItem("activeVideo");

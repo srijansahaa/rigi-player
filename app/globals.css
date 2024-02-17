@@ -21,22 +21,25 @@ body {
   font-family: "Nunito Sans", sans-serif;
 }
 
-.customPlayer {
-  height: 80vh;
-  top: 144px;
-}
-
 .customVideoControls {
-  /* display: none; */
+  display: none;
   left: calc(50% - 92px);
 }
 
-.customPlayer:hover .customVideoControls {
-  /* display: block; */
+.progressBar,
+.customDropdown,
+.fullscreen {
+  display: none;
 }
 
-.progresBar {
-  /* display: none; */
+.customPlayer:hover .customVideoControls,
+.customPlayer:hover .progressBar {
+  display: flex;
+}
+
+.customPlayer:hover .customDropdown,
+.customPlayer:hover .fullscreen {
+  display: unset;
 }
 
 .progressBarInner {
@@ -50,5 +53,12 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@media screen and (min-width: 1024px) {
+  .customPlayer {
+    top: 144px;
+    height: 80vh;
   }
 }

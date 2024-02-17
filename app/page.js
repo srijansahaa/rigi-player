@@ -200,17 +200,17 @@ export default function Home() {
   };
 
   return (
-    <main className="px-32">
+    <main className="px-4 lg:px-32 pb-4">
       <div>
         <div>
           <input
-            className="bg-white w-1/2 shadow-md p-4 rounded-md border outline-none mb-4"
+            className="bg-white w-full lg:w-1/2 shadow-md p-4 rounded-md border outline-none mb-4"
             value={searchValue}
             placeholder="Search your own playlist"
             onChange={handleSearch}
           />
         </div>
-        <h1 className="text-violet-900 font-semibold text-xl mb-4 w-1/2 flex whitespace-nowrap items-center gap-4">
+        <h1 className="text-violet-900 font-semibold text-sm lg:text-xl mb-4 lg:w-1/2 flex lg:whitespace-nowrap items-center gap-4">
           {searchValue.length < 4
             ? "Watch the most popular videos from Pexels"
             : `Search results for ${searchValue}`}
@@ -218,10 +218,10 @@ export default function Home() {
           <div className="border-b-2 border-violet-900 w-full" />
         </h1>
 
-        <div className="flex w-full gap-4">
-          <div className="flex flex-col gap-8 w-1/2">
+        <div className="flex flex-col lg:flex-row w-full gap-4">
+          <div className="flex flex-col gap-8 lg:w-1/2">
             {playlist.length === 0 ? (
-              <div className="text-center text-violet-900 font-semibold text-2xl my-auto">
+              <div className="text-center text-violet-900 font-semibold text-sm lg:text-2xl my-auto">
                 Try a different search!
               </div>
             ) : (
@@ -276,10 +276,10 @@ export default function Home() {
             )}
           </div>
 
-          <div className="w-1/2 h-screen sticky customPlayer flex items-center">
+          <div className="lg:w-1/2 h-screen fixed maxLg:bottom-0 maxLg:left-0 maxLg:z-50 lg:sticky customPlayer flex items-end lg:items-center">
             {activeVideo ? (
               <>
-                <div className="customVideoControls absolute z-30 flex gap-6">
+                <div className="customVideoControls absolute z-30 flex gap-6 maxLg:bottom-1/4">
                   <button
                     className="bg-white/50 rounded-full p-2"
                     onClick={toggleRewind}
@@ -308,11 +308,16 @@ export default function Home() {
                   </button>
                 </div>
 
+                <div
+                  className="absolute block lg:hidden w-full h-screen bg-black/50"
+                  onClick={() => setActiveVideo(null)}
+                />
+
                 <video
                   key={activeVideo.url}
                   controls={false}
                   playsInline
-                  className="h-full w-full bg-black rounded-md relative"
+                  className="h-1/2 lg:h-full w-full bg-black rounded-md relative"
                   ref={videoRef}
                   onTimeUpdate={handleTimeUpdate}
                   autoPlay
@@ -321,7 +326,7 @@ export default function Home() {
                 </video>
 
                 <div
-                  className="absolute flex items-start z-30 w-full h-2 bg-white/50 bottom-8 cursor-pointer"
+                  className="absolute flex items-start z-30 w-full h-2 bg-white/50 bottom-8 cursor-pointer progressBar"
                   onClick={handleProgressBarClick}
                   onMouseDown={() => setProgressDrag(true)}
                   onMouseMove={progressDragMove}
@@ -369,7 +374,7 @@ export default function Home() {
                 </div>
 
                 <button
-                  className="absolute bottom-1 z-30 right-4"
+                  className="absolute bottom-1 z-30 right-4 fullscreen"
                   onClick={handleFullscreen}
                 >
                   <FrameCorners size={24} color="#ffffff" />
@@ -378,7 +383,7 @@ export default function Home() {
             ) : (
               <img
                 src="/assets/landing.svg"
-                className="w-11/12 mx-auto"
+                className="w-11/12 mx-auto hidden lg:block"
                 alt="Player Landing"
               />
             )}

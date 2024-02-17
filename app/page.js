@@ -2,7 +2,7 @@
 
 import Videos from "@/components/videos";
 import { useAppDispatch, useAppSelector } from "@/feature/hooks";
-import { updateActiveVideo, updatePlaylist } from "@/feature/playlistReducer";
+import { updatePlaylist } from "@/feature/playlistReducer";
 import {
   CaretUpDown,
   ClockClockwise,
@@ -18,6 +18,7 @@ import { useEffect, useState, useRef } from "react";
 const API_KEY = "tcXk9eyhADKf5DzWUhQnutDiO1YqwLCbJXTrzGadQ80UWa9Doa0Q0dXZ";
 
 export default function Home() {
+  const [activeVideo, setActiveVideo] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -28,7 +29,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   const playlist = useAppSelector((state) => state.playlist.playlist);
-  const activeVideo = useAppSelector((state) => state.playlist.activeVideo);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function Home() {
 
   const handleVideoClick = (vid) => {
     if (activeVideo !== vid) {
-      dispatch(updateActiveVideo(vid));
+      setActiveVideo(vid);
       localStorage.setItem("activeVideo", JSON.stringify(vid));
       setCurrentTime(0);
       setIsPlaying(true);
@@ -225,7 +225,7 @@ export default function Home() {
           <button
             className="border border-violet-900 px-4 rounded-md text-black hover:bg-indigo-900 hover:text-white"
             onClick={() => {
-              dispatch(updateActiveVideo(null));
+              setActiveVideo(null);
               localStorage.removeItem("activeVideo");
               localStorage.removeItem("videoTime");
             }}
@@ -305,7 +305,7 @@ export default function Home() {
                 <div
                   className="absolute block lg:hidden w-full h-screen bg-black/50"
                   onClick={() => {
-                    dispatch(updateActiveVideo(null));
+                    setActiveVideo(null);
                     localStorage.removeItem("activeVideo");
                     localStorage.removeItem("videoTime");
                   }}

@@ -1,8 +1,8 @@
+"use client";
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   playlist: null,
-  activeVideo: JSON.parse(localStorage.getItem("activeVideo")) || null,
 };
 
 const playlistSlice = createSlice({
@@ -12,11 +12,8 @@ const playlistSlice = createSlice({
     updatePlaylist: (state, action) => {
       state.playlist = action.payload;
     },
-    updateActiveVideo: (state, action) => {
-      state.activeVideo = action.payload;
-    },
   },
 });
 
-export const { updatePlaylist, updateActiveVideo } = playlistSlice.actions;
+export const { updatePlaylist } = playlistSlice.actions;
 export default playlistSlice.reducer;

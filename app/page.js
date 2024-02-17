@@ -1,15 +1,13 @@
 "use client";
 
+import Videos from "@/components/videos";
 import { useAppDispatch, useAppSelector } from "@/feature/hooks";
-import { updatePlaylist } from "@/feature/playlistReducer";
+import { updateActiveVideo, updatePlaylist } from "@/feature/playlistReducer";
 import {
-  CaretDown,
-  CaretUp,
   CaretUpDown,
   ClockClockwise,
   ClockCounterClockwise,
   FrameCorners,
-  List,
   Pause,
   Play,
 } from "@phosphor-icons/react";
@@ -20,7 +18,6 @@ import { useEffect, useState, useRef } from "react";
 const API_KEY = "tcXk9eyhADKf5DzWUhQnutDiO1YqwLCbJXTrzGadQ80UWa9Doa0Q0dXZ";
 
 export default function Home() {
-  const [activeVideo, setActiveVideo] = useState(null);
   const [searchValue, setSearchValue] = useState("");
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -28,11 +25,14 @@ export default function Home() {
   const [progressDrag, setProgressDrag] = useState(false);
   const [showPlayback, setShowPlayback] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const playlist = useAppSelector((state) => state.playlist.playlist);
+  const activeVideo = useAppSelector((state) => state.playlist.activeVideo);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
+    setLoading(true);
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -54,21 +54,15 @@ export default function Home() {
           },
         }));
         dispatch(updatePlaylist(videos));
+        setLoading(false);
       } catch (err) {
         console.error(err);
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
-
-  const handleDragStart = (e, index) => {
-    e.dataTransfer.setData("text/plain", index);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
 
   const handleDrop = (e, targetIndex) => {
     e.preventDefault();
@@ -81,8 +75,8 @@ export default function Home() {
     dispatch(updatePlaylist(updatedPlaylist));
   };
 
-  const handleMove = (index, location) => {
-    console.log("cdscds");
+  const handleMove = (e, index, location) => {
+    e.stopPropagation();
     const updatedPlaylist = [...playlist];
     if (
       (location === "up" && index === 0) ||
@@ -123,6 +117,8 @@ export default function Home() {
 
   const handleTimeUpdate = () => {
     setCurrentTime(videoRef.current.currentTime);
+
+    localStorage.setItem("videoTime", videoRef.current.currentTime);
     if (videoRef.current.currentTime === videoRef.current.duration)
       setIsPlaying(false);
   };
@@ -169,6 +165,7 @@ export default function Home() {
   };
 
   const handleSearch = async (e) => {
+    setLoading(true);
     setSearchValue(e.target.value);
     if (e.target.value.length > 2) {
       try {
@@ -181,8 +178,6 @@ export default function Home() {
           }
         );
 
-        console.log(response);
-
         const videos = response.data.videos.map((video) => ({
           id: video.id,
           title: video.user.name,
@@ -193,22 +188,50 @@ export default function Home() {
           },
         }));
         dispatch(updatePlaylist(videos));
+        setLoading(false);
       } catch (err) {
         console.error(err);
+        setLoading(false);
       }
     }
   };
 
+  const handleVideoClick = (vid) => {
+    if (activeVideo !== vid) {
+      dispatch(updateActiveVideo(vid));
+      localStorage.setItem("activeVideo", JSON.stringify(vid));
+      setCurrentTime(0);
+      setIsPlaying(true);
+    }
+  };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      setIsPlaying(!videoRef.current.paused);
+      videoRef.current.currentTime = localStorage.getItem("videoTime");
+    }
+  }, [videoRef]);
+
   return (
     <main className="px-4 lg:px-32 pb-4">
       <div>
-        <div>
+        <div className="flex justify-between mb-4">
           <input
-            className="bg-white w-full lg:w-1/2 shadow-md p-4 rounded-md border outline-none mb-4"
+            className="bg-white w-full lg:w-1/2 shadow-md p-4 rounded-md border outline-none"
             value={searchValue}
-            placeholder="Search your own playlist"
+            placeholder="Get your own playlist"
             onChange={handleSearch}
           />
+          <button
+            className="border border-violet-900 px-4 rounded-md text-black hover:bg-indigo-900 hover:text-white"
+            onClick={() => {
+              dispatch(updateActiveVideo(null));
+              localStorage.removeItem("activeVideo");
+              localStorage.removeItem("videoTime");
+            }}
+          >
+            Close Player
+          </button>
         </div>
         <h1 className="text-violet-900 font-semibold text-sm lg:text-xl mb-4 lg:w-1/2 flex lg:whitespace-nowrap items-center gap-4">
           {searchValue.length < 4
@@ -220,58 +243,29 @@ export default function Home() {
 
         <div className="flex flex-col lg:flex-row w-full gap-4">
           <div className="flex flex-col gap-8 lg:w-1/2">
-            {playlist.length === 0 ? (
+            {loading ? (
+              <Image
+                alt="loading..."
+                src="/assets/loader.gif"
+                width={100}
+                height={100}
+                className="mx-auto"
+              />
+            ) : playlist?.length === 0 ? (
               <div className="text-center text-violet-900 font-semibold text-sm lg:text-2xl my-auto">
                 Try a different search!
               </div>
             ) : (
-              playlist.map((vid, index) => (
-                <div
-                  key={vid.id}
-                  className="flex items-center justify-between shadow-md hover:shadown-lg p-4 rounded-md border active:shadow-lg"
-                >
-                  <div
-                    className="flex items-center gap-4 cursor-pointer"
-                    onClick={() => {
-                      if (activeVideo !== vid.video) {
-                        setActiveVideo(vid.video);
-                        setCurrentTime(0);
-                        setIsPlaying(true);
-                      }
-                    }}
-                  >
-                    <Image
-                      src={vid.thumbnail}
-                      width={40}
-                      height={40}
-                      alt={vid.title}
-                      className="rounded-full w-12 h-12"
-                    />
-                    {vid.title}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {index !== 0 && (
-                      <button onClick={() => handleMove(index, "up")}>
-                        <CaretUp size={24} color="#8c8c8c" />
-                      </button>
-                    )}
-                    {index !== playlist.length - 1 && (
-                      <button onClick={() => handleMove(index, "down")}>
-                        <CaretDown size={24} color="#8c8c8c" />
-                      </button>
-                    )}
-                    <button
-                      className="cursor-grab"
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, index)}
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, index)}
-                    >
-                      <List size={28} color="#8c8c8c" />
-                    </button>
-                  </div>
-                </div>
+              playlist?.map((vid, index) => (
+                <Videos
+                  key={index}
+                  vid={vid}
+                  index={index}
+                  handleVideoClick={handleVideoClick}
+                  length={playlist.length}
+                  handleMove={handleMove}
+                  handleDrop={handleDrop}
+                />
               ))
             )}
           </div>
@@ -310,7 +304,11 @@ export default function Home() {
 
                 <div
                   className="absolute block lg:hidden w-full h-screen bg-black/50"
-                  onClick={() => setActiveVideo(null)}
+                  onClick={() => {
+                    dispatch(updateActiveVideo(null));
+                    localStorage.removeItem("activeVideo");
+                    localStorage.removeItem("videoTime");
+                  }}
                 />
 
                 <video
@@ -330,9 +328,9 @@ export default function Home() {
                   onClick={handleProgressBarClick}
                   onMouseDown={() => setProgressDrag(true)}
                   onMouseMove={progressDragMove}
-                  onMouseUp={() => setProgressDrag(true)}
+                  onMouseUp={() => setProgressDrag(false)}
                 >
-                  <span className="text-slate-300 flex text-sm absolute left-2 bottom-3">
+                  <span className="text-slate-300 flex text xs lg:text-sm absolute left-2 bottom-3">
                     <b className="text-white">
                       {Math.round(currentTime) || "00"}:00 /&nbsp;
                     </b>
@@ -349,7 +347,7 @@ export default function Home() {
                   ></div>
                 </div>
 
-                <div className="customDropdown text-white bg-black/50 rounded-md absolute bottom-12 z-30 right-2 text-sm p-2 pb-0">
+                <div className="customDropdown text-white bg-black/50 rounded-md absolute bottom-12 z-30 right-2 text-xs lg:text-sm p-2 pb-0">
                   <label
                     className="flex gap-4 font-bold cursor-pointer"
                     onClick={() => setShowPlayback(!showPlayback)}

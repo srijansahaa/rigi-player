@@ -18,7 +18,9 @@ import { useEffect, useState, useRef } from "react";
 const API_KEY = "tcXk9eyhADKf5DzWUhQnutDiO1YqwLCbJXTrzGadQ80UWa9Doa0Q0dXZ";
 
 export default function Home() {
-  const [activeVideo, setActiveVideo] = useState(null);
+  const [activeVideo, setActiveVideo] = useState(
+    JSON.parse(localStorage.getItem("activeVideo")) || null
+  );
   const [searchValue, setSearchValue] = useState("");
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);

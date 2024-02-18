@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+Please find my submission for Assignment- React JS Developer | Rigi
 
+To run the dev server:
 ```bash
 npm run dev
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+yarn dev 
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+I've also deployed it on Vercel
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Deployed on Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+[rigi-player.vercel.app](https://rigi-player.vercel.app/)
 
-## Learn More
+Please find the attached lighthouse report as well:
+![Lighthouse Report](./public/assets/lighthouse.png)
 
-To learn more about Next.js, take a look at the following resources:
+## Features Added
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Search feature for videos from Pexels
+- Reorder playlist
+- Videos will continue playing from where users left-off.
+- Responsiveness
+- Video feature like seek, fullscreen, play/pause, fast-forward, rewind, etc.

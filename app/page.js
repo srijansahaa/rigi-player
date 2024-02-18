@@ -119,8 +119,16 @@ export default function Home() {
     setCurrentTime(videoRef.current.currentTime);
 
     localStorage.setItem("videoTime", videoRef.current.currentTime);
-    if (videoRef.current.currentTime === videoRef.current.duration)
-      setIsPlaying(false);
+    if (videoRef.current.currentTime === videoRef.current.duration) {
+      const activeIndex = playlist?.findIndex(
+        (video) => video.id === activeVideo?.id
+      );
+      const nextVideo =
+        activeIndex !== playlist?.length - 1
+          ? playlist?.[activeIndex + 1]
+          : playlist?.[0];
+      setActiveVideo(nextVideo);
+    }
   };
 
   const handleProgressBarClick = (e) => {
@@ -210,7 +218,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log(videoRef.current);
     if (videoRef.current) {
       setIsPlaying(!videoRef.current.paused);
       videoRef.current.currentTime = localStorage.getItem("videoTime");
@@ -281,6 +288,7 @@ export default function Home() {
                   length={playlist.length}
                   handleMove={handleMove}
                   handleDrop={handleDrop}
+                  activeVideo={activeVideo}
                 />
               ))
             )}
@@ -328,7 +336,7 @@ export default function Home() {
                 />
 
                 <video
-                  key={activeVideo.url}
+                  key={activeVideo.id}
                   controls={false}
                   playsInline
                   className="h-1/2 lg:h-full w-full bg-black rounded-md relative"
@@ -336,7 +344,10 @@ export default function Home() {
                   onTimeUpdate={handleTimeUpdate}
                   autoPlay
                 >
-                  <source src={activeVideo.url} type={activeVideo.file_type} />
+                  <source
+                    src={activeVideo.video.url}
+                    type={activeVideo.video.file_type}
+                  />
                 </video>
 
                 <div
@@ -350,7 +361,8 @@ export default function Home() {
                     <b className="text-white">
                       {formatTime(Math.round(currentTime)) || "00:00"} /&nbsp;
                     </b>
-                    {formatTime(Math.round(videoRef.current?.duration)) || "00:00"}
+                    {formatTime(Math.round(videoRef.current?.duration)) ||
+                      "00:00"}
                   </span>
 
                   <div

@@ -345,8 +345,8 @@ export default function Home() {
                   autoPlay
                 >
                   <source
-                    src={activeVideo.video.url}
-                    type={activeVideo.video.file_type}
+                    src={activeVideo.video?.url}
+                    type={activeVideo.video?.file_type}
                   />
                 </video>
 

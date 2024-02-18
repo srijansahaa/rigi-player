@@ -228,12 +228,13 @@ export default function Home() {
             onChange={handleSearch}
           />
           <button
-            className="border border-violet-900 px-4 rounded-md text-black hover:bg-indigo-900 hover:text-white whitespace-nowrap"
+            className="border border-violet-900 px-4 rounded-md text-black enabled:hover:bg-indigo-900 enabled:hover:text-white whitespace-nowrap disabled:cursor-not-allowed disabled:border-slate-200"
             onClick={() => {
               setActiveVideo(null);
               localStorage.removeItem("activeVideo");
               localStorage.removeItem("videoTime");
             }}
+            disabled={!activeVideo}
           >
             Close Player
           </button>

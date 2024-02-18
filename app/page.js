@@ -36,7 +36,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://api.pexels.com/videos/popular?per_page=10&min_duration=30",
+          "https://api.pexels.com/videos/popular?per_page=10&min_duration=30&max_duration=3599",
           {
             headers: {
               Authorization: API_KEY,
@@ -170,7 +170,7 @@ export default function Home() {
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://api.pexels.com/videos/search?query=${e.target.value}&per_page=10&min_duration=30`,
+          `https://api.pexels.com/videos/search?query=${e.target.value}&per_page=10&min_duration=30&max_duration=3599`,
           {
             headers: {
               Authorization: API_KEY,
@@ -216,6 +216,16 @@ export default function Home() {
       videoRef.current.currentTime = localStorage.getItem("videoTime");
     }
   }, [videoRef.current]);
+
+  const formatTime = (sec) => {
+    const date = new Date(sec * 1000);
+    const minutes = date.getUTCMinutes();
+    const formattedTime =
+      minutes.toString().padStart(2, "0") +
+      ":" +
+      date.getSeconds().toString().padStart(2, "0");
+    return formattedTime;
+  };
 
   return (
     <main className="px-4 lg:px-32 pb-4">
@@ -338,9 +348,9 @@ export default function Home() {
                 >
                   <span className="text-slate-300 flex text xs lg:text-sm absolute left-2 bottom-3">
                     <b className="text-white">
-                      {Math.round(currentTime) || "00"}:00 /&nbsp;
+                      {formatTime(Math.round(currentTime)) || "00:00"} /&nbsp;
                     </b>
-                    {Math.round(videoRef.current?.duration) || "00"}:00
+                    {formatTime(Math.round(videoRef.current?.duration)) || "00:00"}
                   </span>
 
                   <div

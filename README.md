@@ -16,6 +16,7 @@ I've also deployed it on Vercel
 [rigi-player.vercel.app](https://rigi-player.vercel.app/)
 
 Please find the attached lighthouse report as well:
+
 ![Lighthouse Report](./public/assets/lighthouse.png)
 
 ## Features Added

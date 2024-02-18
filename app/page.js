@@ -165,9 +165,9 @@ export default function Home() {
   };
 
   const handleSearch = async (e) => {
-    setLoading(true);
     setSearchValue(e.target.value);
     if (e.target.value.length > 2) {
+      setLoading(true);
       try {
         const response = await axios.get(
           `https://api.pexels.com/videos/search?query=${e.target.value}&per_page=10&min_duration=30`,

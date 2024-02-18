@@ -232,13 +232,13 @@ export default function Home() {
       <div>
         <div className="flex justify-between mb-4 maxLg:text-sm maxLg:gap-2">
           <input
-            className="bg-white w-full lg:w-1/2 shadow-md p-4 rounded-md border outline-none"
+            className="bg-white dark:bg-slate-800 w-full lg:w-1/2 shadow-md p-4 rounded-md border dark:border-slate-900 dark:text-slate-400 outline-none"
             value={searchValue}
             placeholder="Get your own playlist"
             onChange={handleSearch}
           />
           <button
-            className="border border-violet-900 px-4 rounded-md text-black enabled:hover:bg-indigo-900 enabled:hover:text-white whitespace-nowrap disabled:cursor-not-allowed disabled:border-slate-200"
+            className="border border-violet-900 px-4 rounded-md text-black dark:text-white enabled:hover:bg-indigo-900 enabled:hover:text-white whitespace-nowrap disabled:cursor-not-allowed disabled:border-slate-200"
             onClick={() => {
               setActiveVideo(null);
               localStorage.removeItem("activeVideo");
@@ -249,7 +249,7 @@ export default function Home() {
             Close Player
           </button>
         </div>
-        <h1 className="text-violet-900 font-semibold text-sm lg:text-xl mb-4 lg:w-1/2 flex lg:whitespace-nowrap items-center gap-4">
+        <h1 className="text-violet-900 dark:text-white font-semibold text-sm lg:text-xl mb-4 lg:w-1/2 flex lg:whitespace-nowrap items-center gap-4">
           {searchValue.length < 4
             ? "Watch the most popular videos from Pexels"
             : `Search results for ${searchValue}`}
@@ -268,7 +268,7 @@ export default function Home() {
                 className="mx-auto"
               />
             ) : playlist?.length === 0 ? (
-              <div className="text-center text-violet-900 font-semibold text-sm lg:text-2xl my-auto">
+              <div className="text-center text-violet-900 dark:text-white font-semibold text-sm lg:text-2xl my-auto">
                 Try a different search!
               </div>
             ) : (

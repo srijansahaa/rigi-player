@@ -8,7 +8,7 @@ const Videos = (props) => {
   return (
     <div
       index={vid.id}
-      className={`flex items-center justify-between shadow-md hover:shadown-lg p-4 rounded-md border dark:border-slate-900 active:shadow-lg hover:bg-gradient-to-r from-indigo-100 dark:hover:bg-gradient-to-r from-indigo-900 cursor-pointer ${vid.id === activeVideo.id && 'bg-gradient-to-r from-indigo-100 dark:bg-gradient-to-r from-indigo-900'}`}
+      className={`flex items-center justify-between shadow-md hover:shadown-lg p-4 rounded-md border dark:border-slate-900 active:shadow-lg hover:bg-gradient-to-r from-indigo-100 dark:hover:bg-gradient-to-r from-indigo-900 cursor-pointer ${vid.id === activeVideo?.id && 'bg-gradient-to-r from-indigo-100 dark:bg-gradient-to-r from-indigo-900'}`}
       onClick={() => handleVideoClick(vid)}
     >
       <div

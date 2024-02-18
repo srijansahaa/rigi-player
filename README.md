@@ -26,3 +26,4 @@ Please find the attached lighthouse report as well:
 - Videos will continue playing from where users left-off.
 - Responsiveness
 - Video feature like seek, fullscreen, play/pause, fast-forward, rewind, etc.
+- Redux
